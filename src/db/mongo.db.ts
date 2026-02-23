@@ -10,34 +10,25 @@ export let blogCollection: Collection<BlogDBModel>;
 export let postCollection: Collection<PostDBModel>;
 
 export async function runDb(url: string): Promise<boolean> {
-    // Если клиент уже есть, не переподключаемся
     if (client) return true;
 
-    // Создаем клиента с четкими таймаутами для тестов
     client = new MongoClient(url, {
-        serverSelectionTimeoutMS: 4000,
-        connectTimeoutMS: 4000,
+        serverSelectionTimeoutMS: 3000, // Ждем базу не дольше 3 сек
+        connectTimeoutMS: 3000,
     });
 
     try {
         await client.connect();
-
-        // ЖЕСТКО берем имя из настроек, игнорируя хвост в MONGO_URL
         const db = client.db(SETTINGS.DB_NAME);
 
+        // Инициализируем коллекции
         blogCollection = db.collection<BlogDBModel>('blogs');
         postCollection = db.collection<PostDBModel>('posts');
 
-        // Простая проверка связи
-        await db.command({ ping: 1 });
-        console.log(`✅ Connected to DB: ${SETTINGS.DB_NAME}`);
+        console.log('✅ MongoDB Connected');
         return true;
     } catch (e) {
-        console.error('❌ MongoDB connection failed:', e);
-        if (client) {
-            await client.close();
-            client = null;
-        }
+        console.error('❌ MongoDB Connection Error:', e);
         return false;
     }
 }

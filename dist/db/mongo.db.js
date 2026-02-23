@@ -15,31 +15,23 @@ const settings_1 = require("../core/settings");
 exports.client = null;
 function runDb(url) {
     return __awaiter(this, void 0, void 0, function* () {
-        // Если клиент уже есть, не переподключаемся
         if (exports.client)
             return true;
-        // Создаем клиента с четкими таймаутами для тестов
         exports.client = new mongodb_1.MongoClient(url, {
-            serverSelectionTimeoutMS: 4000,
-            connectTimeoutMS: 4000,
+            serverSelectionTimeoutMS: 3000, // Ждем базу не дольше 3 сек
+            connectTimeoutMS: 3000,
         });
         try {
             yield exports.client.connect();
-            // ЖЕСТКО берем имя из настроек, игнорируя хвост в MONGO_URL
             const db = exports.client.db(settings_1.SETTINGS.DB_NAME);
+            // Инициализируем коллекции
             exports.blogCollection = db.collection('blogs');
             exports.postCollection = db.collection('posts');
-            // Простая проверка связи
-            yield db.command({ ping: 1 });
-            console.log(`✅ Connected to DB: ${settings_1.SETTINGS.DB_NAME}`);
+            console.log('✅ MongoDB Connected');
             return true;
         }
         catch (e) {
-            console.error('❌ MongoDB connection failed:', e);
-            if (exports.client) {
-                yield exports.client.close();
-                exports.client = null;
-            }
+            console.error('❌ MongoDB Connection Error:', e);
             return false;
         }
     });
