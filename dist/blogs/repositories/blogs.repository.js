@@ -15,23 +15,16 @@ const mongodb_1 = require("mongodb");
 exports.blogsRepository = {
     getAllBlogs() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!mongo_db_1.blogCollection)
-                return [];
-            // Мапим, чтобы скрыть _id из ответа, если это нужно для тестов
-            return yield mongo_db_1.blogCollection.find({}).toArray();
+            return yield (0, mongo_db_1.getBlogCollection)().find({}).toArray();
         });
     },
     findBlogById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!mongo_db_1.blogCollection)
-                return null;
-            return yield mongo_db_1.blogCollection.findOne({ id });
+            return yield (0, mongo_db_1.getBlogCollection)().findOne({ id });
         });
     },
     createBlog(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!mongo_db_1.blogCollection)
-                return null;
             const newBlog = {
                 _id: new mongodb_1.ObjectId(),
                 id: Date.now().toString(),
@@ -41,35 +34,19 @@ exports.blogsRepository = {
                 createdAt: new Date().toISOString(),
                 isMembership: false
             };
-            try {
-                yield mongo_db_1.blogCollection.insertOne(newBlog);
-                return newBlog;
-            }
-            catch (e) {
-                console.error(e);
-                return null;
-            }
+            yield (0, mongo_db_1.getBlogCollection)().insertOne(newBlog);
+            return newBlog;
         });
     },
     updateBlog(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!mongo_db_1.blogCollection)
-                return false;
-            const result = yield mongo_db_1.blogCollection.updateOne({ id }, {
-                $set: {
-                    name: data.name,
-                    description: data.description,
-                    websiteUrl: data.websiteUrl
-                }
-            });
+            const result = yield (0, mongo_db_1.getBlogCollection)().updateOne({ id }, { $set: { name: data.name, description: data.description, websiteUrl: data.websiteUrl } });
             return result.matchedCount === 1;
         });
     },
     deleteBlog(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!mongo_db_1.blogCollection)
-                return false;
-            const result = yield mongo_db_1.blogCollection.deleteOne({ id });
+            const result = yield (0, mongo_db_1.getBlogCollection)().deleteOne({ id });
             return result.deletedCount === 1;
         });
     }

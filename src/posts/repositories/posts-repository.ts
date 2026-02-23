@@ -1,22 +1,17 @@
-import { postCollection, blogCollection, PostDBModel } from "../../db/mongo.db";
+import { getPostCollection, getBlogCollection, PostDBModel } from "../../db/mongo.db";
 import { ObjectId } from 'mongodb';
 
 export const postsRepository = {
     async getAllPosts(): Promise<PostDBModel[]> {
-        if (!postCollection) return [];
-        return await postCollection.find({}).toArray();
+        return await getPostCollection().find({}).toArray();
     },
 
     async findPostById(id: string): Promise<PostDBModel | null> {
-        if (!postCollection) return null;
-        return await postCollection.findOne({ id });
+        return await getPostCollection().findOne({ id });
     },
 
     async createPost(data: { title: string, shortDescription: string, content: string, blogId: string }): Promise<PostDBModel | null> {
-        if (!postCollection || !blogCollection) return null;
-
-        // Обязательно ищем блог, чтобы получить blogName
-        const blog = await blogCollection.findOne({ id: data.blogId });
+        const blog = await getBlogCollection().findOne({ id: data.blogId });
 
         const newPost: PostDBModel = {
             _id: new ObjectId(),
@@ -29,34 +24,20 @@ export const postsRepository = {
             createdAt: new Date().toISOString()
         };
 
-        try {
-            await postCollection.insertOne(newPost);
-            return newPost;
-        } catch (e) {
-            console.error(e);
-            return null;
-        }
+        await getPostCollection().insertOne(newPost);
+        return newPost;
     },
 
-    async updatePost(id: string, data: { title: string, shortDescription: string, content: string, blogId: string }): Promise<boolean> {
-        if (!postCollection) return false;
-        const result = await postCollection.updateOne(
+    async updatePost(id: string, data: any): Promise<boolean> {
+        const result = await getPostCollection().updateOne(
             { id },
-            {
-                $set: {
-                    title: data.title,
-                    shortDescription: data.shortDescription,
-                    content: data.content,
-                    blogId: data.blogId
-                }
-            }
+            { $set: { ...data } }
         );
         return result.matchedCount === 1;
     },
 
     async deletePost(id: string): Promise<boolean> {
-        if (!postCollection) return false;
-        const result = await postCollection.deleteOne({ id });
+        const result = await getPostCollection().deleteOne({ id });
         return result.deletedCount === 1;
     }
 };

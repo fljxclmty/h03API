@@ -9,30 +9,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.runDb = exports.postCollection = exports.blogCollection = exports.client = void 0;
+exports.getPostCollection = exports.getBlogCollection = exports.runDb = void 0;
 const mongodb_1 = require("mongodb");
 const settings_1 = require("../core/settings");
-exports.client = null;
-function runDb(url) {
+const client = new mongodb_1.MongoClient(process.env.MONGO_URL || settings_1.SETTINGS.MONGO_URL || '');
+function runDb() {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!url) {
-            console.error("❌ MONGO_URL is missing!");
-            return false;
-        }
-        exports.client = new mongodb_1.MongoClient(url);
         try {
-            yield exports.client.connect();
-            const db = exports.client.db(settings_1.SETTINGS.DB_NAME || 'h03_database');
-            exports.blogCollection = db.collection('blogs');
-            exports.postCollection = db.collection('posts');
-            console.log("✅ Successfully connected to MongoDB");
+            yield client.connect();
+            console.log("✅ Connected to Mongo");
             return true;
         }
         catch (e) {
-            console.error("❌ MongoDB Connection Error:", e);
-            yield exports.client.close();
+            console.error("❌ Mongo connection error", e);
+            yield client.close();
             return false;
         }
     });
 }
 exports.runDb = runDb;
+// Геттеры для коллекций (безопасный доступ)
+const getBlogCollection = () => client.db(settings_1.SETTINGS.DB_NAME || 'h03_database').collection('blogs');
+exports.getBlogCollection = getBlogCollection;
+const getPostCollection = () => client.db(settings_1.SETTINGS.DB_NAME || 'h03_database').collection('posts');
+exports.getPostCollection = getPostCollection;

@@ -15,12 +15,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const setup_app_1 = require("./setup-app");
 const mongo_db_1 = require("./db/mongo.db");
-const settings_1 = require("./core/settings");
 const app = (0, express_1.default)();
 (0, setup_app_1.setupApp)(app);
 const startApp = () => __awaiter(void 0, void 0, void 0, function* () {
-    const mongoUri = process.env.MONGO_URL || settings_1.SETTINGS.MONGO_URL;
-    yield (0, mongo_db_1.runDb)(mongoUri);
+    yield (0, mongo_db_1.runDb)();
 });
 startApp();
 exports.default = app;

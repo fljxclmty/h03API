@@ -4,30 +4,20 @@ import { SETTINGS } from "../core/settings";
 export type BlogDBModel = { _id: ObjectId; id: string; name: string; description: string; websiteUrl: string; createdAt: string; isMembership: boolean; }
 export interface PostDBModel { _id: ObjectId; id: string; title: string; shortDescription: string; content: string; blogId: string; blogName: string; createdAt: string; }
 
-export let client: MongoClient | null = null;
-export let blogCollection: Collection<BlogDBModel>;
-export let postCollection: Collection<PostDBModel>;
+const client = new MongoClient(process.env.MONGO_URL || SETTINGS.MONGO_URL || '');
 
-export async function runDb(url: string): Promise<boolean> {
-    if (!url) {
-        console.error("❌ MONGO_URL is missing!");
-        return false;
-    }
-
-    client = new MongoClient(url);
-
+export async function runDb() {
     try {
         await client.connect();
-        const db = client.db(SETTINGS.DB_NAME || 'h03_database');
-
-        blogCollection = db.collection<BlogDBModel>('blogs');
-        postCollection = db.collection<PostDBModel>('posts');
-
-        console.log("✅ Successfully connected to MongoDB");
+        console.log("✅ Connected to Mongo");
         return true;
     } catch (e) {
-        console.error("❌ MongoDB Connection Error:", e);
+        console.error("❌ Mongo connection error", e);
         await client.close();
         return false;
     }
 }
+
+// Геттеры для коллекций (безопасный доступ)
+export const getBlogCollection = () => client.db(SETTINGS.DB_NAME || 'h03_database').collection<BlogDBModel>('blogs');
+export const getPostCollection = () => client.db(SETTINGS.DB_NAME || 'h03_database').collection<PostDBModel>('posts');

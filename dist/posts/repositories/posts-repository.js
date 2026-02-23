@@ -15,24 +15,17 @@ const mongodb_1 = require("mongodb");
 exports.postsRepository = {
     getAllPosts() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!mongo_db_1.postCollection)
-                return [];
-            return yield mongo_db_1.postCollection.find({}).toArray();
+            return yield (0, mongo_db_1.getPostCollection)().find({}).toArray();
         });
     },
     findPostById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!mongo_db_1.postCollection)
-                return null;
-            return yield mongo_db_1.postCollection.findOne({ id });
+            return yield (0, mongo_db_1.getPostCollection)().findOne({ id });
         });
     },
     createPost(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!mongo_db_1.postCollection || !mongo_db_1.blogCollection)
-                return null;
-            // Обязательно ищем блог, чтобы получить blogName
-            const blog = yield mongo_db_1.blogCollection.findOne({ id: data.blogId });
+            const blog = yield (0, mongo_db_1.getBlogCollection)().findOne({ id: data.blogId });
             const newPost = {
                 _id: new mongodb_1.ObjectId(),
                 id: Date.now().toString(),
@@ -43,36 +36,19 @@ exports.postsRepository = {
                 blogName: blog ? blog.name : "Unknown Blog",
                 createdAt: new Date().toISOString()
             };
-            try {
-                yield mongo_db_1.postCollection.insertOne(newPost);
-                return newPost;
-            }
-            catch (e) {
-                console.error(e);
-                return null;
-            }
+            yield (0, mongo_db_1.getPostCollection)().insertOne(newPost);
+            return newPost;
         });
     },
     updatePost(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!mongo_db_1.postCollection)
-                return false;
-            const result = yield mongo_db_1.postCollection.updateOne({ id }, {
-                $set: {
-                    title: data.title,
-                    shortDescription: data.shortDescription,
-                    content: data.content,
-                    blogId: data.blogId
-                }
-            });
+            const result = yield (0, mongo_db_1.getPostCollection)().updateOne({ id }, { $set: Object.assign({}, data) });
             return result.matchedCount === 1;
         });
     },
     deletePost(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!mongo_db_1.postCollection)
-                return false;
-            const result = yield mongo_db_1.postCollection.deleteOne({ id });
+            const result = yield (0, mongo_db_1.getPostCollection)().deleteOne({ id });
             return result.deletedCount === 1;
         });
     }
