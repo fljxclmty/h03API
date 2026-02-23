@@ -15,27 +15,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const setup_app_1 = require("./setup-app");
 const mongo_db_1 = require("./db/mongo.db");
+const settings_1 = require("./core/settings");
 const app = (0, express_1.default)();
 (0, setup_app_1.setupApp)(app);
-const port = process.env.PORT || 3000;
-const mongoUri = process.env.MONGO_URL; // Берется из настроек Vercel
+const mongoUri = process.env.MONGO_URL || settings_1.SETTINGS.MONGO_URL;
 const startApp = () => __awaiter(void 0, void 0, void 0, function* () {
-    if (!mongoUri) {
-        console.error("❌ Error: MONGO_URL is not defined in environment variables");
-        return;
-    }
-    // Передаем URL в runDb, исправляя ошибку TS2554
-    const connected = yield (0, mongo_db_1.runDb)(mongoUri);
-    if (connected) {
-        // Приведение к any исправляет ошибку TS2339
-        app.listen(port, () => {
-            console.log(`🚀 Server is running on port ${port}`);
+    // Запускаем подключение к БД
+    yield (0, mongo_db_1.runDb)(mongoUri);
+    // Слушаем порт только если мы не на Vercel (для локальных тестов)
+    if (process.env.NODE_ENV !== 'production') {
+        app.listen(settings_1.SETTINGS.PORT, () => {
+            console.log(`Local server started on port ${settings_1.SETTINGS.PORT}`);
         });
-    }
-    else {
-        console.error("❌ Failed to connect to MongoDB Atlas. Проверь IP 0.0.0.0/0");
     }
 });
 startApp();
-// Обязательный экспорт для работы Serverless Functions на Vercel
+// Vercel будет использовать этот экспорт напрямую
 exports.default = app;

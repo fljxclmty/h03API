@@ -15,18 +15,20 @@ const settings_1 = require("../core/settings");
 exports.client = null;
 function runDb(url) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!url)
-            return false;
         if (exports.client)
             return true;
-        exports.client = new mongodb_1.MongoClient(url);
+        // Используем настройки таймаута, чтобы сервер не "висел"
+        exports.client = new mongodb_1.MongoClient(url, {
+            serverSelectionTimeoutMS: 5000,
+            connectTimeoutMS: 5000,
+        });
         try {
             yield exports.client.connect();
-            const db = exports.client.db(settings_1.SETTINGS.DB_NAME || 'h03');
-            yield db.command({ ping: 1 });
+            const db = exports.client.db(settings_1.SETTINGS.DB_NAME);
+            // Инициализируем коллекции СРАЗУ
             exports.blogCollection = db.collection('blogs');
             exports.postCollection = db.collection('posts');
-            console.log('✅ Connected successfully to MongoDB Atlas');
+            console.log('✅ Connected to MongoDB Atlas');
             return true;
         }
         catch (e) {
