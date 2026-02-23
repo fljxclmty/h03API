@@ -1,10 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
-import {HttpStatus} from "./statuses";
+import { HttpStatus } from "./statuses";
 
-// Process - это глобальный объект в Node.js, который предоставляет информацию о текущем процессе Node.js
-// env — это объект, который хранит все переменные окружения текущего процесса. Переменные окружения — это значения,
-// которые могут быть установлены на уровне операционной системы или приложения и которые могут использоваться для
-// настройки поведения программного обеспечения (например, пароли, ключи API, пути к файлам и т. д.)
+// Берем из env или используем дефолты
 export const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'qwerty';
 
@@ -13,28 +10,33 @@ export const superAdminGuardMiddleware = (
     res: Response,
     next: NextFunction,
 ) => {
-    const auth = req.headers['authorization'] as string; // 'Basic xxxx'
+    // Приводим к any, чтобы избежать ошибок 'Property headers/sendStatus does not exist' на Vercel
+    const request = req as any;
+    const response = res as any;
+
+    const auth = request.headers['authorization'] as string;
 
     if (!auth) {
-        res.sendStatus(HttpStatus.Unauthorized);
+        response.sendStatus(HttpStatus.Unauthorized);
         return;
     }
 
     const [authType, token] = auth.split(' ');
 
-    if (authType !== 'Basic') {
-        res.sendStatus(HttpStatus.Unauthorized);
+    if (authType !== 'Basic' || !token) {
+        response.sendStatus(HttpStatus.Unauthorized);
         return;
     }
 
-    const credentials = Buffer.from(token, 'base64').toString('utf-8'); //dbcadkcnasdk
-
-    const [username, password] = credentials.split(':'); //admin:qwerty
+    // Декодируем base64
+    const credentials = Buffer.from(token, 'base64').toString('utf-8');
+    const [username, password] = credentials.split(':');
 
     if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
-        res.sendStatus(HttpStatus.Unauthorized);
+        response.sendStatus(HttpStatus.Unauthorized);
         return;
     }
 
-    next(); // Успешная авторизация, продолжаем
+    // Вызываем next как функцию. Тип NextFunction из express 4.x это позволяет.
+    next();
 };

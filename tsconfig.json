@@ -9,11 +9,9 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
-
-    /* Добавляем эти опции */
-    "moduleResolution": "node", // Помогает находить типы в node_modules
-    "baseUrl": ".",             // Позволяет резолвить пути от корня
-    "types": ["node", "express"] // Явно указываем, какие глобальные типы нужны
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "types": ["node", "express", "jest"]
   },
   "include": ["src/**/*"],
   "exclude": ["__tests__", "dist", "node_modules"]

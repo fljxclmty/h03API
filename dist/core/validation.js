@@ -13,6 +13,7 @@ const createErrorMessages = (errors) => {
     return { errorsMessages: errors };
 };
 exports.createErrorMessages = createErrorMessages;
+// Выносим маппинг ошибок в отдельную типизированную функцию
 const formatErrors = (error) => {
     const expressError = error;
     return {
@@ -23,9 +24,11 @@ const formatErrors = (error) => {
 const inputValidationResultMiddleware = (req, res, next) => {
     const errors = (0, express_validator_1.validationResult)(req).formatWith(formatErrors).array({ onlyFirstError: true });
     if (errors.length > 0) {
+        // Используем приведение к any для res, чтобы гарантировать наличие метода status на Vercel
         res.status(statuses_1.HttpStatus.BadRequest).json({ errorsMessages: errors });
         return;
     }
+    // Вызываем next как функцию
     next();
 };
 exports.inputValidationResultMiddleware = inputValidationResultMiddleware;
