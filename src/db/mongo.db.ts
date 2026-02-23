@@ -39,7 +39,7 @@ export let postCollection: Collection<PostDBModel>;
  * Инициализация подключения к БД
  * @param url - строка подключения (например, из .env)
  */
-export async function runDB(url: string): Promise<boolean> {
+export async function runDb(url: string): Promise<boolean> {
     if (!url) {
         console.error('❌ Database URL is required');
         return false;

@@ -1,28 +1,31 @@
-import express from 'express';
+import express, { Express } from 'express';
 import { setupApp } from './setup-app';
-import { SETTINGS } from "./core/settings";
-import { runDB } from './db/mongo.db';
+import { runDb } from "./db/mongo.db";
 
-const bootstrap = async () => {
-    const app = express();
-    setupApp(app);
+const app: Express = express();
+setupApp(app);
 
-    // 1. Сначала ждем подключения к базе
-    const isConnected = await runDB(SETTINGS.MONGO_URL);
+const port = process.env.PORT || 3000;
+// Берем URL из переменных окружения
+const mongoUri = process.env.MONGO_URL;
 
-    if (!isConnected) {
-        console.error("❌ Database connection failed. Exiting...");
-        process.exit(1); // Завершаем процесс, если БД недоступна
+const startApp = async () => {
+    if (!mongoUri) {
+        console.error("Error: MONGO_URL is not defined in env variables");
+        process.exit(1);
     }
 
-    // 2. Только потом запускаем сервер
-    const PORT = SETTINGS.PORT || 5001;
-    app.listen(PORT, () => {
-        console.log(`🚀 Server is running on port ${PORT}`);
-    });
+    // Передаем URL в функцию подключения
+    const connected = await runDb(mongoUri);
+
+    if (connected) {
+        app.listen(port, () => {
+            console.log(`Example app listening on port ${port}`);
+        });
+    }
 };
 
-// Вызываем bootstrap и ловим возможные ошибки
-bootstrap().catch(err => {
-    console.error("💥 Bootstrap error:", err);
-});
+startApp();
+
+// ОБЯЗАТЕЛЬНО для Vercel
+export default app;

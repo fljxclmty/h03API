@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.stopDB = exports.runDB = exports.postCollection = exports.blogCollection = exports.client = void 0;
+exports.stopDB = exports.runDb = exports.postCollection = exports.blogCollection = exports.client = void 0;
 const mongodb_1 = require("mongodb");
 const settings_1 = require("../core/settings");
 // --- 2. ПЕРЕМЕННЫЕ СОСТОЯНИЯ ---
@@ -21,7 +21,7 @@ exports.client = null;
  * Инициализация подключения к БД
  * @param url - строка подключения (например, из .env)
  */
-function runDB(url) {
+function runDb(url) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!url) {
             console.error('❌ Database URL is required');
@@ -53,7 +53,7 @@ function runDB(url) {
         }
     });
 }
-exports.runDB = runDB;
+exports.runDb = runDb;
 /**
  * Закрытие соединения (нужно для тестов или остановки сервера)
  */
