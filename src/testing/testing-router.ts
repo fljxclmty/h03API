@@ -8,8 +8,8 @@ testingRouter.delete('/all-data', async (req: Request, res: Response) => {
     try {
         await blogCollection.deleteMany({});
         await postCollection.deleteMany({});
-        res.sendStatus(HttpStatus.NoContent);
+        (res as any).sendStatus(HttpStatus.NoContent);
     } catch (e) {
-        res.sendStatus(HttpStatus.InternalServerError);
+        (res as any).sendStatus(HttpStatus.InternalServerError);
     }
 });

@@ -11,7 +11,6 @@ const blogs_router_1 = require("./blogs/router/blogs-router");
 const posts_router_1 = require("./posts/router/posts-router");
 const testing_router_1 = require("./testing/testing-router");
 const setupApp = (app) => {
-    // Используем приведение к any, чтобы Vercel не ругался на отсутствие методов
     const server = app;
     server.use(express_1.default.json());
     server.get("/", (req, res) => {

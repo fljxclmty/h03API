@@ -6,13 +6,12 @@ import { postsRouter } from "./posts/router/posts-router";
 import { testingRouter } from "./testing/testing-router";
 
 export const setupApp = (app: Express) => {
-    // Используем приведение к any, чтобы Vercel не ругался на отсутствие методов
     const server = app as any;
 
     server.use(express.json());
 
     server.get("/", (req: Request, res: Response) => {
-        res.status(HttpStatus.Ok).send('Hello World!');
+        (res as any).status(HttpStatus.Ok).send('Hello World!');
     });
 
     server.use(BLOGS_PATH, blogsRouter);
