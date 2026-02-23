@@ -1,14 +1,13 @@
-import { Request, Response } from 'express';
 import {postsRepository} from "../repositories/posts-repository";
 import { HttpStatus } from '../../core/statuses';
 
 export const postsHandlers = {
-    async getAll(req: Request, res: Response): Promise<void> {
+    async getAll(req: any, res: any) {
         const posts = await postsRepository.getAllPosts();
         res.status(HttpStatus.OK).send(posts);
     },
 
-    async getOne(req: Request, res: Response): Promise<void> {
+    async getOne(req: any, res: any) {
         const post = await postsRepository.findPostById(req.params.id);
         if (!post) {
             res.sendStatus(HttpStatus.NotFound);
@@ -17,7 +16,7 @@ export const postsHandlers = {
         res.status(HttpStatus.OK).send(post);
     },
 
-    async create(req: Request, res: Response): Promise<void> {
+    async create(req: any, res: any) {
         const newPost = await postsRepository.createPost(req.body);
         if (!newPost) {
             res.sendStatus(HttpStatus.InternalServerError);
@@ -26,7 +25,7 @@ export const postsHandlers = {
         res.status(HttpStatus.Created).send(newPost);
     },
 
-    async update(req: Request, res: Response): Promise<void> {
+    async update(req: any, res: any) {
         const isUpdated = await postsRepository.updatePost(req.params.id, req.body);
         if (!isUpdated) {
             res.sendStatus(HttpStatus.NotFound);
@@ -35,7 +34,7 @@ export const postsHandlers = {
         res.sendStatus(HttpStatus.NoContent);
     },
 
-    async delete(req: Request, res: Response): Promise<void> {
+    async delete(req: any, res: any) {
         const isDeleted = await postsRepository.deletePost(req.params.id);
         if (!isDeleted) {
             res.sendStatus(HttpStatus.NotFound);
