@@ -15,23 +15,25 @@ const settings_1 = require("../core/settings");
 exports.client = null;
 function runDb(url) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log("🛠 Начало подключения к MongoDB..."); // Появится в логах Vercel
         if (exports.client)
             return true;
         exports.client = new mongodb_1.MongoClient(url, {
-            serverSelectionTimeoutMS: 3000, // Ждем базу не дольше 3 сек
-            connectTimeoutMS: 3000,
+            serverSelectionTimeoutMS: 5000, // Ждем не более 5 секунд
+            connectTimeoutMS: 5000,
         });
         try {
+            console.log("📡 Отправка запроса в Atlas...");
             yield exports.client.connect();
+            console.log("🗄 Выбор базы данных...");
             const db = exports.client.db(settings_1.SETTINGS.DB_NAME);
-            // Инициализируем коллекции
             exports.blogCollection = db.collection('blogs');
             exports.postCollection = db.collection('posts');
-            console.log('✅ MongoDB Connected');
+            console.log("✅ УСПЕХ: База подключена!");
             return true;
         }
         catch (e) {
-            console.error('❌ MongoDB Connection Error:', e);
+            console.error("❌ КРИТИЧЕСКАЯ ОШИБКА:", e);
             return false;
         }
     });
