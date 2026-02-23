@@ -33,7 +33,6 @@ const createPostHandler = (req, res) => __awaiter(void 0, void 0, void 0, functi
         res.status(statuses_1.HttpStatus.Created).send(newPost);
     }
     else {
-        // Если blogId не валиден, возвращаем 400
         res.sendStatus(statuses_1.HttpStatus.BadRequest);
     }
 });
