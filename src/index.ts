@@ -6,31 +6,27 @@ const app: Express = express();
 setupApp(app);
 
 const port = process.env.PORT || 3000;
-
-// Извлекаем URL из переменных окружения
 const mongoUri = process.env.MONGO_URL;
 
 const startApp = async () => {
-    // Проверка на наличие URL, чтобы избежать падения при запуске
     if (!mongoUri) {
-        console.error("Error: MONGO_URL is not defined in environment variables");
-        // На Vercel мы не выходим через exit, но логируем ошибку
+        console.error("❌ Error: MONGO_URL is not defined in environment variables");
         return;
     }
 
-    // Передаем URL в функцию, как того требует её описание
+    // Передаем URL из process.env в функцию инициализации
     const connected = await runDb(mongoUri);
 
     if (connected) {
         app.listen(port, () => {
-            console.log(`Server is running on port ${port}`);
+            console.log(`🚀 Server is running on port ${port}`);
         });
     } else {
-        console.error("Failed to connect to MongoDB");
+        console.error("❌ Failed to connect to MongoDB. Check your IP Whitelist (0.0.0.0/0)");
     }
 };
 
 startApp();
 
-// ОЧЕНЬ ВАЖНО: Экспорт для Vercel, чтобы не было ошибки "No exports found"
+// Обязательный экспорт для работы Vercel Serverless Functions
 export default app;
