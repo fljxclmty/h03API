@@ -11,52 +11,63 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.postsHandlers = void 0;
 const posts_repository_1 = require("../repositories/posts-repository");
-const statuses_1 = require("../../core/statuses");
+// Маппер для постов
+const postMapper = (post) => ({
+    id: post.id,
+    title: post.title,
+    shortDescription: post.shortDescription,
+    content: post.content,
+    blogId: post.blogId,
+    blogName: post.blogName,
+    createdAt: post.createdAt
+});
 exports.postsHandlers = {
     getAll(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const posts = yield posts_repository_1.postsRepository.getAllPosts();
-            res.status(statuses_1.HttpStatus.OK).send(posts);
+            res.status(200).send(posts.map(postMapper));
         });
     },
     getOne(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const post = yield posts_repository_1.postsRepository.findPostById(req.params.id);
             if (!post) {
-                res.sendStatus(statuses_1.HttpStatus.NotFound);
+                res.sendStatus(404);
                 return;
             }
-            res.status(statuses_1.HttpStatus.OK).send(post);
+            res.status(200).send(postMapper(post));
         });
     },
     create(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const newPost = yield posts_repository_1.postsRepository.createPost(req.body);
             if (!newPost) {
-                res.sendStatus(statuses_1.HttpStatus.InternalServerError);
+                res.sendStatus(500);
                 return;
             }
-            res.status(statuses_1.HttpStatus.Created).send(newPost);
+            res.status(201).send(postMapper(newPost));
         });
     },
     update(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const isUpdated = yield posts_repository_1.postsRepository.updatePost(req.params.id, req.body);
-            if (!isUpdated) {
-                res.sendStatus(statuses_1.HttpStatus.NotFound);
-                return;
+            if (isUpdated) {
+                res.sendStatus(204);
             }
-            res.sendStatus(statuses_1.HttpStatus.NoContent);
+            else {
+                res.sendStatus(404);
+            }
         });
     },
     delete(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const isDeleted = yield posts_repository_1.postsRepository.deletePost(req.params.id);
-            if (!isDeleted) {
-                res.sendStatus(statuses_1.HttpStatus.NotFound);
-                return;
+            if (isDeleted) {
+                res.sendStatus(204);
             }
-            res.sendStatus(statuses_1.HttpStatus.NoContent);
+            else {
+                res.sendStatus(404);
+            }
         });
     }
 };

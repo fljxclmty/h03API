@@ -11,52 +11,62 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.blogsHandlers = void 0;
 const blogs_repository_1 = require("../repositories/blogs.repository");
-const statuses_1 = require("../../core/statuses");
+// Маппер для очистки объекта от _id и лишних полей
+const blogMapper = (blog) => ({
+    id: blog.id,
+    name: blog.name,
+    description: blog.description,
+    websiteUrl: blog.websiteUrl,
+    createdAt: blog.createdAt,
+    isMembership: blog.isMembership
+});
 exports.blogsHandlers = {
     getAll(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const blogs = yield blogs_repository_1.blogsRepository.getAllBlogs();
-            res.status(statuses_1.HttpStatus.OK).send(blogs);
+            res.status(200).send(blogs.map(blogMapper));
         });
     },
     getOne(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const blog = yield blogs_repository_1.blogsRepository.findBlogById(req.params.id);
             if (!blog) {
-                res.sendStatus(statuses_1.HttpStatus.NotFound);
+                res.sendStatus(404);
                 return;
             }
-            res.status(statuses_1.HttpStatus.OK).send(blog);
+            res.status(200).send(blogMapper(blog));
         });
     },
     create(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const newBlog = yield blogs_repository_1.blogsRepository.createBlog(req.body);
             if (!newBlog) {
-                res.sendStatus(statuses_1.HttpStatus.InternalServerError);
+                res.sendStatus(500);
                 return;
             }
-            res.status(statuses_1.HttpStatus.Created).send(newBlog);
+            res.status(201).send(blogMapper(newBlog));
         });
     },
     update(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const isUpdated = yield blogs_repository_1.blogsRepository.updateBlog(req.params.id, req.body);
-            if (!isUpdated) {
-                res.sendStatus(statuses_1.HttpStatus.NotFound);
-                return;
+            if (isUpdated) {
+                res.sendStatus(204);
             }
-            res.sendStatus(statuses_1.HttpStatus.NoContent);
+            else {
+                res.sendStatus(404);
+            }
         });
     },
     delete(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const isDeleted = yield blogs_repository_1.blogsRepository.deleteBlog(req.params.id);
-            if (!isDeleted) {
-                res.sendStatus(statuses_1.HttpStatus.NotFound);
-                return;
+            if (isDeleted) {
+                res.sendStatus(204);
             }
-            res.sendStatus(statuses_1.HttpStatus.NoContent);
+            else {
+                res.sendStatus(404);
+            }
         });
     }
 };
