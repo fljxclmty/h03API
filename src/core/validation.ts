@@ -18,11 +18,6 @@ export type APIErrorResult = {
     errorsMessages: FieldError[];
 };
 
-export const createErrorMessages = (errors: FieldError[]): APIErrorResult => {
-    return { errorsMessages: errors };
-};
-
-// Выносим маппинг ошибок в отдельную типизированную функцию
 const formatErrors = (error: ValidationError): FieldError => {
     const expressError = error as FieldValidationError;
     return {
@@ -39,11 +34,11 @@ export const inputValidationResultMiddleware = (
     const errors = validationResult(req).formatWith(formatErrors).array({ onlyFirstError: true });
 
     if (errors.length > 0) {
-        // Используем приведение к any для res, чтобы гарантировать наличие метода status на Vercel
+        // Принудительно вызываем status и json через any
         (res as any).status(HttpStatus.BadRequest).json({ errorsMessages: errors });
         return;
     }
 
-    // Вызываем next как функцию
-    next();
+    // Принудительно вызываем next как функцию через any
+    (next as any)();
 };

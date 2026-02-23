@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.inputValidationResultMiddleware = exports.createErrorMessages = exports.idValidation = void 0;
+exports.inputValidationResultMiddleware = exports.idValidation = void 0;
 const express_validator_1 = require("express-validator");
 const statuses_1 = require("./statuses");
 exports.idValidation = (0, express_validator_1.param)('id')
@@ -9,11 +9,6 @@ exports.idValidation = (0, express_validator_1.param)('id')
     .trim()
     .notEmpty()
     .withMessage('ID cannot be empty');
-const createErrorMessages = (errors) => {
-    return { errorsMessages: errors };
-};
-exports.createErrorMessages = createErrorMessages;
-// Выносим маппинг ошибок в отдельную типизированную функцию
 const formatErrors = (error) => {
     const expressError = error;
     return {
@@ -24,11 +19,11 @@ const formatErrors = (error) => {
 const inputValidationResultMiddleware = (req, res, next) => {
     const errors = (0, express_validator_1.validationResult)(req).formatWith(formatErrors).array({ onlyFirstError: true });
     if (errors.length > 0) {
-        // Используем приведение к any для res, чтобы гарантировать наличие метода status на Vercel
+        // Принудительно вызываем status и json через any
         res.status(statuses_1.HttpStatus.BadRequest).json({ errorsMessages: errors });
         return;
     }
-    // Вызываем next как функцию
+    // Принудительно вызываем next как функцию через any
     next();
 };
 exports.inputValidationResultMiddleware = inputValidationResultMiddleware;
