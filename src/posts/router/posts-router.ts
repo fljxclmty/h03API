@@ -1,46 +1,38 @@
-import {Router} from "express";
-import {idValidation, inputValidationResultMiddleware} from "../../core/validation";
+import { Router } from 'express';
+import { postsHandlers } from './post-handlers';
 import {superAdminGuardMiddleware} from "../../core/super-admin-guard-middleware";
+import {idValidation, inputValidationResultMiddleware} from "../../core/validation";
 import {postInputValidation} from "../validation/post-input-validation";
-import {
-    createPostHandler,
-    deletePostHandler,
-    getPostByIdHandler,
-    getPostsHandler,
-    updatePostHandler
-} from "./post-handlers";
 
 
-export const postsRouter = Router({});
+export const postsRouter = Router();
 
+postsRouter.get('/', postsHandlers.getAll);
 
-postsRouter
-    .get('', getPostsHandler)
+postsRouter.get('/:id',
+    idValidation,
+    inputValidationResultMiddleware,
+    postsHandlers.getOne
+);
 
-    .get('/:id',
-        idValidation,
-        inputValidationResultMiddleware,
-        getPostByIdHandler
-    )
+postsRouter.post('/',
+    superAdminGuardMiddleware,
+    ...postInputValidation,
+    inputValidationResultMiddleware,
+    postsHandlers.create
+);
 
-    .post('',
-        superAdminGuardMiddleware, // 1. Сначала проверяем права
-        postInputValidation,       // 2. Потом валидируем тело
-        inputValidationResultMiddleware,
-        createPostHandler,
-    )
+postsRouter.put('/:id',
+    superAdminGuardMiddleware,
+    idValidation,
+    ...postInputValidation,
+    inputValidationResultMiddleware,
+    postsHandlers.update
+);
 
-    .put('/:id',
-        superAdminGuardMiddleware, // 1. Сначала права
-        idValidation,              // 2. Потом ID из параметров
-        postInputValidation,       // 3. Потом тело запроса
-        inputValidationResultMiddleware,
-        updatePostHandler,
-    )
-
-    .delete('/:id',
-        superAdminGuardMiddleware, // 1. Сначала права
-        idValidation,              // 2. Потом ID
-        inputValidationResultMiddleware,
-        deletePostHandler,
-    );
+postsRouter.delete('/:id',
+    superAdminGuardMiddleware,
+    idValidation,
+    inputValidationResultMiddleware,
+    postsHandlers.delete
+);

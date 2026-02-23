@@ -11,7 +11,7 @@ export const setupApp = (app: Express) => {
     server.use(express.json());
 
     server.get("/", (req: Request, res: Response) => {
-        (res as any).status(HttpStatus.Ok).send('Hello World!');
+        (res as any).status(HttpStatus.OK).send('Hello World!');
     });
 
     server.use(BLOGS_PATH, blogsRouter);

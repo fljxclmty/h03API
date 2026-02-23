@@ -14,7 +14,7 @@ const setupApp = (app) => {
     const server = app;
     server.use(express_1.default.json());
     server.get("/", (req, res) => {
-        res.status(statuses_1.HttpStatus.Ok).send('Hello World!');
+        res.status(statuses_1.HttpStatus.OK).send('Hello World!');
     });
     server.use(paths_1.BLOGS_PATH, blogs_router_1.blogsRouter);
     server.use(paths_1.POSTS_PATH, posts_router_1.postsRouter);

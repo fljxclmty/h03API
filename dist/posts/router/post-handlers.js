@@ -9,51 +9,55 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deletePostHandler = exports.updatePostHandler = exports.createPostHandler = exports.getPostByIdHandler = exports.getPostsHandler = void 0;
+exports.postsHandlers = void 0;
 const posts_repository_1 = require("../repositories/posts-repository");
 const statuses_1 = require("../../core/statuses");
-const getPostsHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const posts = yield posts_repository_1.postsRepository.getAll();
-    res.status(statuses_1.HttpStatus.Ok).send(posts);
-});
-exports.getPostsHandler = getPostsHandler;
-const getPostByIdHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const post = yield posts_repository_1.postsRepository.getById(req.params.id);
-    if (post) {
-        res.status(statuses_1.HttpStatus.Ok).send(post);
+exports.postsHandlers = {
+    getAll(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const posts = yield posts_repository_1.postsRepository.getAllPosts(); // Исправлено
+            res.status(statuses_1.HttpStatus.OK).send(posts);
+        });
+    },
+    getOne(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const post = yield posts_repository_1.postsRepository.findPostById(req.params.id); // Исправлено
+            if (!post) {
+                res.sendStatus(statuses_1.HttpStatus.NotFound);
+                return;
+            }
+            res.status(statuses_1.HttpStatus.OK).send(post);
+        });
+    },
+    create(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const newPost = yield posts_repository_1.postsRepository.createPost(req.body);
+            if (!newPost) {
+                res.sendStatus(statuses_1.HttpStatus.InternalServerError);
+                return;
+            }
+            res.status(statuses_1.HttpStatus.Created).send(newPost);
+        });
+    },
+    update(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Передаем req.body как один объект
+            const isUpdated = yield posts_repository_1.postsRepository.updatePost(req.params.id, req.body);
+            if (!isUpdated) {
+                res.sendStatus(statuses_1.HttpStatus.NotFound);
+                return;
+            }
+            res.sendStatus(statuses_1.HttpStatus.NoContent);
+        });
+    },
+    delete(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const isDeleted = yield posts_repository_1.postsRepository.deletePost(req.params.id);
+            if (!isDeleted) {
+                res.sendStatus(statuses_1.HttpStatus.NotFound);
+                return;
+            }
+            res.sendStatus(statuses_1.HttpStatus.NoContent);
+        });
     }
-    else {
-        res.sendStatus(statuses_1.HttpStatus.NotFound);
-    }
-});
-exports.getPostByIdHandler = getPostByIdHandler;
-const createPostHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const newPost = yield posts_repository_1.postsRepository.createPost(req.body);
-    if (newPost) {
-        res.status(statuses_1.HttpStatus.Created).send(newPost);
-    }
-    else {
-        res.sendStatus(statuses_1.HttpStatus.BadRequest);
-    }
-});
-exports.createPostHandler = createPostHandler;
-const updatePostHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const isUpdated = yield posts_repository_1.postsRepository.updatePost(req.params.id, req.body);
-    if (isUpdated) {
-        res.sendStatus(statuses_1.HttpStatus.NoContent);
-    }
-    else {
-        res.sendStatus(statuses_1.HttpStatus.NotFound);
-    }
-});
-exports.updatePostHandler = updatePostHandler;
-const deletePostHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const isDeleted = yield posts_repository_1.postsRepository.deletePost(req.params.id);
-    if (isDeleted) {
-        res.sendStatus(statuses_1.HttpStatus.NoContent);
-    }
-    else {
-        res.sendStatus(statuses_1.HttpStatus.NotFound);
-    }
-});
-exports.deletePostHandler = deletePostHandler;
+};

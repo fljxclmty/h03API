@@ -9,46 +9,54 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteBlogHandler = exports.updateBlogHandler = exports.createBlogHandler = exports.getBlogByIdHandler = exports.getBlogsHandler = void 0;
+exports.blogsHandlers = void 0;
 const blogs_repository_1 = require("../repositories/blogs.repository");
 const statuses_1 = require("../../core/statuses");
-const getBlogsHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const blogs = yield blogs_repository_1.blogsRepository.getAll();
-    res.status(statuses_1.HttpStatus.Ok).send(blogs);
-});
-exports.getBlogsHandler = getBlogsHandler;
-const getBlogByIdHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const blog = yield blogs_repository_1.blogsRepository.getById(req.params.id);
-    if (blog) {
-        res.status(statuses_1.HttpStatus.Ok).send(blog);
+exports.blogsHandlers = {
+    getAll(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const blogs = yield blogs_repository_1.blogsRepository.getAllBlogs(); // Исправлено
+            res.status(statuses_1.HttpStatus.OK).send(blogs);
+        });
+    },
+    getOne(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const blog = yield blogs_repository_1.blogsRepository.findBlogById(req.params.id); // Исправлено
+            if (!blog) {
+                res.sendStatus(statuses_1.HttpStatus.NotFound);
+                return;
+            }
+            res.status(statuses_1.HttpStatus.OK).send(blog);
+        });
+    },
+    create(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const newBlog = yield blogs_repository_1.blogsRepository.createBlog(req.body);
+            if (!newBlog) {
+                res.sendStatus(statuses_1.HttpStatus.InternalServerError);
+                return;
+            }
+            res.status(statuses_1.HttpStatus.Created).send(newBlog);
+        });
+    },
+    update(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const isUpdated = yield blogs_repository_1.blogsRepository.updateBlog(req.params.id, req.body);
+            if (!isUpdated) {
+                res.sendStatus(statuses_1.HttpStatus.NotFound);
+                return;
+            }
+            res.sendStatus(statuses_1.HttpStatus.NoContent);
+        });
+    },
+    delete(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const isDeleted = yield blogs_repository_1.blogsRepository.deleteBlog(req.params.id);
+            if (!isDeleted) {
+                res.sendStatus(statuses_1.HttpStatus.NotFound);
+                return;
+            }
+            res.sendStatus(statuses_1.HttpStatus.NoContent);
+        });
     }
-    else {
-        res.sendStatus(statuses_1.HttpStatus.NotFound);
-    }
-});
-exports.getBlogByIdHandler = getBlogByIdHandler;
-const createBlogHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const newBlog = yield blogs_repository_1.blogsRepository.createBlog(req.body);
-    res.status(statuses_1.HttpStatus.Created).send(newBlog);
-});
-exports.createBlogHandler = createBlogHandler;
-const updateBlogHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const isUpdated = yield blogs_repository_1.blogsRepository.updateBlog(req.params.id, req.body);
-    if (isUpdated) {
-        res.sendStatus(statuses_1.HttpStatus.NoContent);
-    }
-    else {
-        res.sendStatus(statuses_1.HttpStatus.NotFound);
-    }
-});
-exports.updateBlogHandler = updateBlogHandler;
-const deleteBlogHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const isDeleted = yield blogs_repository_1.blogsRepository.deleteBlog(req.params.id);
-    if (isDeleted) {
-        res.sendStatus(statuses_1.HttpStatus.NoContent);
-    }
-    else {
-        res.sendStatus(statuses_1.HttpStatus.NotFound);
-    }
-});
-exports.deleteBlogHandler = deleteBlogHandler;
+};

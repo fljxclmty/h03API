@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.HttpStatus = void 0;
 var HttpStatus;
 (function (HttpStatus) {
-    HttpStatus[HttpStatus["Ok"] = 200] = "Ok";
+    HttpStatus[HttpStatus["OK"] = 200] = "OK";
     HttpStatus[HttpStatus["Created"] = 201] = "Created";
     HttpStatus[HttpStatus["NoContent"] = 204] = "NoContent";
     HttpStatus[HttpStatus["BadRequest"] = 400] = "BadRequest";

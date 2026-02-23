@@ -1,42 +1,46 @@
 import { Request, Response } from 'express';
-import {blogsRepository} from "../repositories/blogs.repository";
-import { BlogInputModel } from '../schemas/blog-input-model';
-
+import { blogsRepository } from '../repositories/blogs.repository';
 import { HttpStatus } from '../../core/statuses';
 
-export const getBlogsHandler = async (req: Request, res: Response) => {
-    const blogs = await blogsRepository.getAll();
-    (res as any).status(HttpStatus.Ok).send(blogs);
-};
+export const blogsHandlers = {
+    async getAll(req: Request, res: Response) {
+        const blogs = await blogsRepository.getAllBlogs(); // Исправлено
+        res.status(HttpStatus.OK).send(blogs);
+    },
 
-export const getBlogByIdHandler = async (req: Request<{ id: string }>, res: Response) => {
-    const blog = await blogsRepository.getById((req as any).params.id);
-    if (blog) {
-        (res as any).status(HttpStatus.Ok).send(blog);
-    } else {
-        (res as any).sendStatus(HttpStatus.NotFound);
-    }
-};
+    async getOne(req: Request, res: Response) {
+        const blog = await blogsRepository.findBlogById(req.params.id); // Исправлено
+        if (!blog) {
+            res.sendStatus(HttpStatus.NotFound);
+            return;
+        }
+        res.status(HttpStatus.OK).send(blog);
+    },
 
-export const createBlogHandler = async (req: Request<{}, {}, BlogInputModel>, res: Response) => {
-    const newBlog = await blogsRepository.createBlog((req as any).body);
-    (res as any).status(HttpStatus.Created).send(newBlog);
-};
+    async create(req: Request, res: Response) {
+        const newBlog = await blogsRepository.createBlog(req.body);
+        if (!newBlog) {
+            res.sendStatus(HttpStatus.InternalServerError);
+            return;
+        }
+        res.status(HttpStatus.Created).send(newBlog);
+    },
 
-export const updateBlogHandler = async (req: Request<{ id: string }, {}, BlogInputModel>, res: Response) => {
-    const isUpdated = await blogsRepository.updateBlog((req as any).params.id, (req as any).body);
-    if (isUpdated) {
-        (res as any).sendStatus(HttpStatus.NoContent);
-    } else {
-        (res as any).sendStatus(HttpStatus.NotFound);
-    }
-};
+    async update(req: Request, res: Response) {
+        const isUpdated = await blogsRepository.updateBlog(req.params.id, req.body);
+        if (!isUpdated) {
+            res.sendStatus(HttpStatus.NotFound);
+            return;
+        }
+        res.sendStatus(HttpStatus.NoContent);
+    },
 
-export const deleteBlogHandler = async (req: Request<{ id: string }>, res: Response) => {
-    const isDeleted = await blogsRepository.deleteBlog((req as any).params.id);
-    if (isDeleted) {
-        (res as any).sendStatus(HttpStatus.NoContent);
-    } else {
-        (res as any).sendStatus(HttpStatus.NotFound);
+    async delete(req: Request, res: Response) {
+        const isDeleted = await blogsRepository.deleteBlog(req.params.id);
+        if (!isDeleted) {
+            res.sendStatus(HttpStatus.NotFound);
+            return;
+        }
+        res.sendStatus(HttpStatus.NoContent);
     }
 };
