@@ -13,19 +13,14 @@ exports.testingRouter = void 0;
 const express_1 = require("express");
 const mongo_db_1 = require("../db/mongo.db");
 const statuses_1 = require("../core/statuses");
-exports.testingRouter = (0, express_1.Router)({});
+exports.testingRouter = (0, express_1.Router)();
 exports.testingRouter.delete('/all-data', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // Очищаем обе коллекции одновременно
-        yield Promise.all([
-            mongo_db_1.blogCollection.deleteMany({}),
-            mongo_db_1.postCollection.deleteMany({})
-        ]);
-        // Возвращаем 204 No Content, как того требует спецификация
+        yield mongo_db_1.blogCollection.deleteMany({});
+        yield mongo_db_1.postCollection.deleteMany({});
         res.sendStatus(statuses_1.HttpStatus.NoContent);
     }
     catch (e) {
-        console.error("Failed to clear database:", e);
         res.sendStatus(statuses_1.HttpStatus.InternalServerError);
     }
 }));
