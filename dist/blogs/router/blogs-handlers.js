@@ -15,13 +15,13 @@ const statuses_1 = require("../../core/statuses");
 exports.blogsHandlers = {
     getAll(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blogs = yield blogs_repository_1.blogsRepository.getAllBlogs(); // Исправлено
+            const blogs = yield blogs_repository_1.blogsRepository.getAllBlogs();
             res.status(statuses_1.HttpStatus.OK).send(blogs);
         });
     },
     getOne(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blog = yield blogs_repository_1.blogsRepository.findBlogById(req.params.id); // Исправлено
+            const blog = yield blogs_repository_1.blogsRepository.findBlogById(req.params.id);
             if (!blog) {
                 res.sendStatus(statuses_1.HttpStatus.NotFound);
                 return;

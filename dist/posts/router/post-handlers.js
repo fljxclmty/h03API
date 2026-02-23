@@ -15,13 +15,13 @@ const statuses_1 = require("../../core/statuses");
 exports.postsHandlers = {
     getAll(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const posts = yield posts_repository_1.postsRepository.getAllPosts(); // Исправлено
+            const posts = yield posts_repository_1.postsRepository.getAllPosts();
             res.status(statuses_1.HttpStatus.OK).send(posts);
         });
     },
     getOne(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const post = yield posts_repository_1.postsRepository.findPostById(req.params.id); // Исправлено
+            const post = yield posts_repository_1.postsRepository.findPostById(req.params.id);
             if (!post) {
                 res.sendStatus(statuses_1.HttpStatus.NotFound);
                 return;
@@ -41,7 +41,6 @@ exports.postsHandlers = {
     },
     update(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Передаем req.body как один объект
             const isUpdated = yield posts_repository_1.postsRepository.updatePost(req.params.id, req.body);
             if (!isUpdated) {
                 res.sendStatus(statuses_1.HttpStatus.NotFound);
