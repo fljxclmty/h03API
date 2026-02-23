@@ -17,26 +17,23 @@ function runDb(url) {
     return __awaiter(this, void 0, void 0, function* () {
         if (exports.client)
             return true;
-        // Используем настройки таймаута, чтобы сервер не "висел"
+        // Настройки для предотвращения "зависания"
         exports.client = new mongodb_1.MongoClient(url, {
-            serverSelectionTimeoutMS: 5000,
-            connectTimeoutMS: 5000,
+            serverSelectionTimeoutMS: 4000,
+            connectTimeoutMS: 4000,
         });
         try {
             yield exports.client.connect();
             const db = exports.client.db(settings_1.SETTINGS.DB_NAME);
-            // Инициализируем коллекции СРАЗУ
             exports.blogCollection = db.collection('blogs');
             exports.postCollection = db.collection('posts');
-            console.log('✅ Connected to MongoDB Atlas');
+            console.log('✅ MongoDB Connected');
             return true;
         }
         catch (e) {
-            console.error('❌ MongoDB connection error:', e);
-            if (exports.client) {
-                yield exports.client.close();
-                exports.client = null;
-            }
+            console.error('❌ Connection error:', e);
+            yield exports.client.close();
+            exports.client = null;
             return false;
         }
     });

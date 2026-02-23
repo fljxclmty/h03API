@@ -20,15 +20,18 @@ const app = (0, express_1.default)();
 (0, setup_app_1.setupApp)(app);
 const mongoUri = process.env.MONGO_URL || settings_1.SETTINGS.MONGO_URL;
 const startApp = () => __awaiter(void 0, void 0, void 0, function* () {
-    // Запускаем подключение к БД
-    yield (0, mongo_db_1.runDb)(mongoUri);
-    // Слушаем порт только если мы не на Vercel (для локальных тестов)
-    if (process.env.NODE_ENV !== 'production') {
-        app.listen(settings_1.SETTINGS.PORT, () => {
-            console.log(`Local server started on port ${settings_1.SETTINGS.PORT}`);
-        });
+    // Сначала запускаем БД. Если она упадет, мы поймаем ошибку, но сервер должен жить
+    try {
+        yield (0, mongo_db_1.runDb)(mongoUri);
     }
+    catch (e) {
+        console.error("🔴 DB Init Error:", e);
+    }
+    // Фикс TS2339: кастуем к any для вызова listen
+    app.listen(settings_1.SETTINGS.PORT, () => {
+        console.log(`🚀 Server started on port ${settings_1.SETTINGS.PORT}`);
+    });
 });
 startApp();
-// Vercel будет использовать этот экспорт напрямую
+// Обязательный экспорт для Vercel
 exports.default = app;
