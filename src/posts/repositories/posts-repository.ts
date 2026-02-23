@@ -1,4 +1,5 @@
-import { postCollection, PostDBModel } from "../../db/mongo.db";
+import { postCollection, blogCollection, PostDBModel } from "../../db/mongo.db";
+import { ObjectId } from 'mongodb';
 
 export const postsRepository = {
     async getAllPosts(): Promise<PostDBModel[]> {
@@ -11,10 +12,30 @@ export const postsRepository = {
         return await postCollection.findOne({ id });
     },
 
-    async createPost(newPost: PostDBModel): Promise<PostDBModel | null> {
-        if (!postCollection) return null;
-        await postCollection.insertOne(newPost);
-        return newPost;
+    async createPost(data: { title: string, shortDescription: string, content: string, blogId: string }): Promise<PostDBModel | null> {
+        if (!postCollection || !blogCollection) return null;
+
+        // Обязательно ищем блог, чтобы получить blogName
+        const blog = await blogCollection.findOne({ id: data.blogId });
+
+        const newPost: PostDBModel = {
+            _id: new ObjectId(),
+            id: Date.now().toString(),
+            title: data.title,
+            shortDescription: data.shortDescription,
+            content: data.content,
+            blogId: data.blogId,
+            blogName: blog ? blog.name : "Unknown Blog",
+            createdAt: new Date().toISOString()
+        };
+
+        try {
+            await postCollection.insertOne(newPost);
+            return newPost;
+        } catch (e) {
+            console.error(e);
+            return null;
+        }
     },
 
     async updatePost(id: string, data: { title: string, shortDescription: string, content: string, blogId: string }): Promise<boolean> {
