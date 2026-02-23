@@ -19,17 +19,19 @@ const mongo_db_1 = require("./db/mongo.db");
 const bootstrap = () => __awaiter(void 0, void 0, void 0, function* () {
     const app = (0, express_1.default)();
     (0, setup_app_1.setupApp)(app);
-    const PORT = settings_1.SETTINGS.PORT;
-    yield (0, mongo_db_1.runDB)(settings_1.SETTINGS.MONGO_URL);
+    // 1. Сначала ждем подключения к базе
+    const isConnected = yield (0, mongo_db_1.runDB)(settings_1.SETTINGS.MONGO_URL);
+    if (!isConnected) {
+        console.error("❌ Database connection failed. Exiting...");
+        process.exit(1); // Завершаем процесс, если БД недоступна
+    }
+    // 2. Только потом запускаем сервер
+    const PORT = settings_1.SETTINGS.PORT || 5001;
     app.listen(PORT, () => {
-        console.log(`Example app listening on port ${PORT}`);
+        console.log(`🚀 Server is running on port ${PORT}`);
     });
-    return app;
 });
-bootstrap();
-const app = (0, express_1.default)();
-(0, setup_app_1.setupApp)(app);
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
-    console.log(`App listening on port ${PORT}`);
+// Вызываем bootstrap и ловим возможные ошибки
+bootstrap().catch(err => {
+    console.error("💥 Bootstrap error:", err);
 });
