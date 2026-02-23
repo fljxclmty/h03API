@@ -6,7 +6,7 @@ const app: Express = express();
 setupApp(app);
 
 const port = process.env.PORT || 3000;
-const mongoUri = process.env.MONGO_URL;
+const mongoUri = process.env.MONGO_URL; // Берется из настроек Vercel
 
 const startApp = async () => {
     if (!mongoUri) {
@@ -14,19 +14,20 @@ const startApp = async () => {
         return;
     }
 
-    // Передаем URL из process.env в функцию инициализации
+    // Передаем URL в runDb, исправляя ошибку TS2554
     const connected = await runDb(mongoUri);
 
     if (connected) {
-        app.listen(port, () => {
+        // Приведение к any исправляет ошибку TS2339
+        (app as any).listen(port, () => {
             console.log(`🚀 Server is running on port ${port}`);
         });
     } else {
-        console.error("❌ Failed to connect to MongoDB. Check your IP Whitelist (0.0.0.0/0)");
+        console.error("❌ Failed to connect to MongoDB Atlas. Проверь IP 0.0.0.0/0");
     }
 };
 
 startApp();
 
-// Обязательный экспорт для работы Vercel Serverless Functions
+// Обязательный экспорт для работы Serverless Functions на Vercel
 export default app;

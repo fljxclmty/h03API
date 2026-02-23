@@ -1,28 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.superAdminGuardMiddleware = exports.ADMIN_PASSWORD = exports.ADMIN_USERNAME = void 0;
+exports.superAdminGuardMiddleware = void 0;
 const statuses_1 = require("./statuses");
-exports.ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-exports.ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'qwerty';
 const superAdminGuardMiddleware = (req, res, next) => {
-    // Используем any для доступа к заголовкам
     const auth = req.headers['authorization'];
-    if (!auth) {
+    if (!auth || !auth.startsWith('Basic ')) {
         res.sendStatus(statuses_1.HttpStatus.Unauthorized);
         return;
     }
-    const [authType, token] = auth.split(' ');
-    if (authType !== 'Basic' || !token) {
-        res.sendStatus(statuses_1.HttpStatus.Unauthorized);
-        return;
-    }
+    const token = auth.split(' ')[1];
     const credentials = Buffer.from(token, 'base64').toString('utf-8');
     const [username, password] = credentials.split(':');
-    if (username !== exports.ADMIN_USERNAME || password !== exports.ADMIN_PASSWORD) {
+    if (username !== (process.env.ADMIN_USERNAME || 'admin') || password !== (process.env.ADMIN_PASSWORD || 'qwerty')) {
         res.sendStatus(statuses_1.HttpStatus.Unauthorized);
         return;
     }
-    // Силовой вызов следующего middleware
-    next();
+    next(); // Фикс для TS2349
 };
 exports.superAdminGuardMiddleware = superAdminGuardMiddleware;

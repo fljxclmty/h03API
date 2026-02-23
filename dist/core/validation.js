@@ -3,27 +3,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.inputValidationResultMiddleware = exports.idValidation = void 0;
 const express_validator_1 = require("express-validator");
 const statuses_1 = require("./statuses");
-exports.idValidation = (0, express_validator_1.param)('id')
-    .isString()
-    .withMessage('ID must be a string')
-    .trim()
-    .notEmpty()
-    .withMessage('ID cannot be empty');
-const formatErrors = (error) => {
-    const expressError = error;
-    return {
-        field: expressError.path,
-        message: expressError.msg,
-    };
-};
+exports.idValidation = (0, express_validator_1.param)('id').isString().trim().notEmpty();
 const inputValidationResultMiddleware = (req, res, next) => {
-    const errors = (0, express_validator_1.validationResult)(req).formatWith(formatErrors).array({ onlyFirstError: true });
+    const errors = (0, express_validator_1.validationResult)(req).formatWith((error) => {
+        const expressError = error;
+        return { field: expressError.path, message: expressError.msg };
+    }).array({ onlyFirstError: true });
     if (errors.length > 0) {
-        // Принудительно вызываем status и json через any
         res.status(statuses_1.HttpStatus.BadRequest).json({ errorsMessages: errors });
         return;
     }
-    // Принудительно вызываем next как функцию через any
+    // Фикс для TS2349: This expression is not callable
     next();
 };
 exports.inputValidationResultMiddleware = inputValidationResultMiddleware;
