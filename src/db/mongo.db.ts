@@ -9,27 +9,25 @@ export let blogCollection: Collection<BlogDBModel>;
 export let postCollection: Collection<PostDBModel>;
 
 export async function runDb(url: string): Promise<boolean> {
-    if (client) return true;
+    if (!url) {
+        console.error("❌ MONGO_URL is missing!");
+        return false;
+    }
 
-    client = new MongoClient(url, {
-        serverSelectionTimeoutMS: 5000,
-        connectTimeoutMS: 5000,
-    });
+    client = new MongoClient(url);
 
     try {
-        console.log("📡 Attempting Atlas connection...");
         await client.connect();
-        const db = client.db(SETTINGS.DB_NAME);
+        const db = client.db(SETTINGS.DB_NAME || 'h03_database');
 
         blogCollection = db.collection<BlogDBModel>('blogs');
         postCollection = db.collection<PostDBModel>('posts');
 
-        console.log("✅ MongoDB Connected successfully");
+        console.log("✅ Successfully connected to MongoDB");
         return true;
     } catch (e) {
-        console.error("❌ MongoDB connection failed:", e);
-        if (client) await client.close();
-        client = null;
+        console.error("❌ MongoDB Connection Error:", e);
+        await client.close();
         return false;
     }
 }

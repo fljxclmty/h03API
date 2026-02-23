@@ -15,26 +15,22 @@ const settings_1 = require("../core/settings");
 exports.client = null;
 function runDb(url) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (exports.client)
-            return true;
-        exports.client = new mongodb_1.MongoClient(url, {
-            serverSelectionTimeoutMS: 5000,
-            connectTimeoutMS: 5000,
-        });
+        if (!url) {
+            console.error("❌ MONGO_URL is missing!");
+            return false;
+        }
+        exports.client = new mongodb_1.MongoClient(url);
         try {
-            console.log("📡 Attempting Atlas connection...");
             yield exports.client.connect();
-            const db = exports.client.db(settings_1.SETTINGS.DB_NAME);
+            const db = exports.client.db(settings_1.SETTINGS.DB_NAME || 'h03_database');
             exports.blogCollection = db.collection('blogs');
             exports.postCollection = db.collection('posts');
-            console.log("✅ MongoDB Connected successfully");
+            console.log("✅ Successfully connected to MongoDB");
             return true;
         }
         catch (e) {
-            console.error("❌ MongoDB connection failed:", e);
-            if (exports.client)
-                yield exports.client.close();
-            exports.client = null;
+            console.error("❌ MongoDB Connection Error:", e);
+            yield exports.client.close();
             return false;
         }
     });
