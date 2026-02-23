@@ -14,8 +14,15 @@ const express_1 = require("express");
 const mongo_db_1 = require("../db/mongo.db");
 const statuses_1 = require("../core/statuses");
 exports.testingRouter = (0, express_1.Router)();
+// Добавляем any, чтобы TS не ругался на sendStatus
 exports.testingRouter.delete('/all-data', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield (0, mongo_db_1.getBlogCollection)().deleteMany({});
-    yield (0, mongo_db_1.getPostCollection)().deleteMany({});
-    res.sendStatus(statuses_1.HttpStatus.NoContent);
+    try {
+        yield (0, mongo_db_1.getBlogCollection)().deleteMany({});
+        yield (0, mongo_db_1.getPostCollection)().deleteMany({});
+        res.sendStatus(statuses_1.HttpStatus.NoContent);
+    }
+    catch (e) {
+        console.error(e);
+        res.sendStatus(500);
+    }
 }));
